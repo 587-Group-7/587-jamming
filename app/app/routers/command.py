@@ -7,7 +7,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 
 # Type imports
-from ..shared.definitions import User
+from ..shared.definitions import Control, User, Robot
 from typing import Optional
 
 # Pydantic typing
@@ -35,5 +35,13 @@ router = APIRouter(
 
 # TODO: Robotic movements would be implemented here. Web Sockets may be ideal for communicating information.
 @router.post("/", status_code=200)
-async def execute_command(user: User, command: Command):
-    pass
+async def execute_command(control: Control, user: User, robot: Robot, command: Command, db=Depends(database.provide_connection)):
+    control = await db.fetch_one("SELECT userId, robotId FROM control WHERE id=:id", values={"id": control.id})
+    if (control is not None and control.userId == user.id and control.robotId == robot.id):
+        pass
+        # TODO: This is where robot control requests would be made.
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user or robot id, or invalid control id",
+        )

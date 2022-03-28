@@ -8,3 +8,6 @@ class User(BaseModel):
 class Robot(BaseModel):
     id: asyncpg.pgproto.pgproto.UUID
     alias: Optional[str] = None
+
+class Control(BaseModel):
+    id: asyncpg.pgproto.pgproto.UUID

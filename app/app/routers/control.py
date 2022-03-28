@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 
 # Type imports
-from ..shared.definitions import User, Robot
+from ..shared.definitions import User, Robot, Control
 
 router = APIRouter(
     prefix="/control",
@@ -17,14 +17,11 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
-class Control(BaseModel):
-    id: asyncpg.pgproto.pgproto.UUID
-
 
 @router.post("/", status_code=200)
 async def create_control(user: User, robot: Robot, db=Depends(database.provide_connection)):
     try:
-        await db.execute("INSERT INTO control (userId, robotId) VALUES userId=:userId, robotId=:robotId", values={"userId": user.id, "robotId": robot.id})
+        await db.execute("INSERT INTO control (userId, robotId) VALUES (:userId, :robotId)", values={"userId": user.id, "robotId": robot.id})
     except asyncpg.exceptions.DataError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
