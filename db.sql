@@ -11,7 +11,7 @@ CREATE TABLE user (
 DROP TABLE IF EXISTS jaminfo CASCADE;
 
 CREATE TABLE jaminfo (
-        id UUID default uuid_generate_v4() PRIMARY KEY,
+    id UUID default uuid_generate_v4() PRIMARY KEY,
     lat DOUBLE PRECISION,
     lng DOUBLE PRECISION,
     intensity DOUBLE PRECISION,
@@ -23,7 +23,16 @@ DROP TABLE IF EXISTS robot CASCADE;
 
 CREATE TABLE robot (
     id SERIAL PRIMARY KEY,
+    alias TEXT,
     userControlId UUID,
-    FOREIGN KEY userControlId REFERENCES user(id)
+    FOREIGN KEY(userControlId) REFERENCES user(id)
 );
+
+CREATE TABLE control (
+    id UUID default uuid_generate_v4() PRIMARY KEY,
+    userId UUID,
+    robotId UUID,
+    FOREIGN KEY(userId) REFERENCES user(id),
+    FOREIGN KEY(robotId) REFERENCES robot(id)
+)
 
