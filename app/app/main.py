@@ -25,6 +25,9 @@ class Movement(BaseModel):
 class Rotation(BaseModel):
     angle: int
 
+class User(BaseModel):
+    user_id: asyncpg.pgproto.pgproto.UUID
+
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -63,6 +66,10 @@ async def control(request: Request):
 @app.get("/leaflet", response_class=HTMLResponse)
 async def control(request: Request):
     return templates.TemplateResponse("leaflet.html", {"request": request})
+
+@app.post("/control", status_code=200)
+async def create_control(user: User):
+    pass
 
 @app.post("/movement", status_code=200)
 async def movement(movement: Movement):
