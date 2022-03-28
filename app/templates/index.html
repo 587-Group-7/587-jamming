@@ -1,21 +1,113 @@
+<!DOCTYPE html>
+
 <html>
+
     <head>
-        <title>Item Details</title>
-        <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+        <title>CSCI 587 Final Presentation</title>
+        <!-- <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet"> -->
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+
+            :root {
+                --color-0: rgb(255, 255, 255);
+                --color-1: #051014;
+                --color-2: #A9FBD7;
+                --color-3: #cec0c4;
+                --shadow-0: 0px 8px 17px -3px rgba(0,0,0,0.1);
+
+            }
+
+            html, body {
+                font-family: 'Poppins', sans-serif;
+                height: 100%;
+                width: 100%;
+                margin: 0;
+            }
+
+            .nav-wrapper, main {
+                padding: 20px 20px 0px 20px;
+            }
+
+            .nav {
+                width: 100%;
+                display: flex;
+                border: var(--color-3) 1px solid;
+                border-radius: 5px;
+                background-color: var(--color-0);
+                box-shadow: var(--shadow-0);
+            }
+
+            .nav-item {
+                text-align: center;
+                padding: 15px;
+            }
+
+            .nav-item a {
+                /* color: var(--color-0); */
+                text-decoration: underline solid var(--color-0);
+                color: var(--color-1);
+            }
+
+            .nav-item:hover a {
+                transition: 0.5s;
+                text-decoration: underline solid var(--color-1);
+            }
+
+            .section {
+                width: 100%;
+                border: var(--color-3) 1px solid;
+                border-radius: 5px;
+                background-color: var(--color-0);
+                box-shadow: var(--shadow-0);
+            }
+
+            .section h1 {
+                text-align: center;
+            }
+
+            .section p {
+                padding: 15px;
+            }
+
+            .split {
+                padding: 20px 0px 0px 0px;
+                display: grid;
+                gap: 20px;
+                grid-template-columns: 1fr 1fr;
+            }
+        </style>
     </head>
+
     <body>
-        <script src="{{ url_for('static', path='/script.js') }}"></script>
-        <h1>Robot Control</h1>
-        <div class="grid-container">
-            <div class="grid-item"></div>
-            <div class="grid-item" id="up">UP</div>
-            <div class="grid-item"></div>
-            <div class="grid-item" id="left">LEFT</div>
-            <div class="grid-item"></div>
-            <div class="grid-item" id="right">RIGHT</div>
-            <div class="grid-item"></div>
-            <div class="grid-item" id="down">DOWN</div>
-            <div class="grid-item"></div>
-          </div>
+        <!-- NAV Section -->
+        <header>
+            <div class="nav-wrapper">
+                <div class="nav">
+                    <div class="nav-item">
+                        <a href="/">Home</a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/control">Control Robot</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="section">
+                <h1>CSCI 587</h1>
+                <p>Description will go here.</p>
+            </div>
+            <div class="split">
+                <div class="section">
+                    <h1>Online Users</h1>
+                    <p>Online users displayed here.</p>
+                </div>
+                <div class="section">
+                    <h1>Connected Robots</h1>
+                    <p>Online robots will go here.</p>
+                </div>
+            </div>
+        </main>
     </body>
+
 </html>
