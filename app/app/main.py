@@ -5,8 +5,18 @@ from pydantic import BaseModel
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+import asyncpg
 
 import http
+
+class Measurement(BaseModel):
+    lat: float
+    lng: float
+    intensity: float
+    robot_id: asyncpg.pgproto.pgproto.UUID
+
+class MeasurementId(BaseModel):
+    id: asyncpg.pgproto.pgproto.UUID
 
 class Movement(BaseModel):
     duration: int
@@ -68,3 +78,19 @@ async def rotation(rotation: Rotation):
 @app.get("/json", status_code=200)
 async def root(request: Request):
     return {"Hello": "World"}
+
+@app.post("/measurement", status_code=201)
+async def create_measurement(measurement: Measurement):
+    pass
+
+@app.get("/measurement", status_code=201)
+async def get_measurement_by_id(id: MeasurementId):
+    pass
+
+@app.get("/measurements", status_code=201)
+async def get_measurements(request: Request):
+    pass
+
+@app.delete("/measurement", status_code=201)
+async def delete_measurement_by_id(id: MeasurementId):
+    pass
