@@ -7,7 +7,7 @@ name = "pypi"
 pydantic = "*"
 fastapi = "*"
 uvicorn = "*"
-pg8000 = "*"
+databases = "*"
 
 [dev-packages]
 
