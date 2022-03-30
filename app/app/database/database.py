@@ -6,6 +6,9 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 DATABASE_URL = 'postgresql://postgres:postgres@0.0.0.0:5432/dev' if DATABASE_URL is None else DATABASE_URL
 database = databases.Database(DATABASE_URL)
 
+DATABASE_REGEN = os.environ.get('DATABASE_REGEN')
+regen = False if DATABASE_REGEN is None else True
+
 async def startup():
     # Start database on app startup.
     try:
@@ -28,39 +31,79 @@ def provide_connection() -> databases.Database:
 # will attempt to create; only works if user table not already there
 # otherwise just stops due to the error.
 async def create_database():
-    sql = """CREATE EXTENSION IF NOT EXISTS pgcrypto;
-        CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    if (regen):
+        sql = """CREATE EXTENSION IF NOT EXISTS pgcrypto;
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-        CREATE TABLE users (
+            DROP TABLE IF EXISTS users CASCADE;
+            CREATE TABLE users (
+                    id UUID default uuid_generate_v4() PRIMARY KEY,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT UNIQUE NOT NULL
+            );
+
+            DROP TABLE IF EXISTS jaminfo CASCADE;
+            CREATE TABLE jaminfo (
                 id UUID default uuid_generate_v4() PRIMARY KEY,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT UNIQUE NOT NULL
-        );
+                lat DOUBLE PRECISION,
+                lng DOUBLE PRECISION,
+                intensity DOUBLE PRECISION,
+                robot_id INTEGER REFERENCES robot(id));
 
-        CREATE TABLE jaminfo (
-            id UUID default uuid_generate_v4() PRIMARY KEY,
-            lat DOUBLE PRECISION,
-            lng DOUBLE PRECISION,
-            intensity DOUBLE PRECISION,
-            robot_id INTEGER REFERENCES robot(id));
+            CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);
 
-        CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);
+            DROP TABLE IF EXISTS robot CASCADE;
+            CREATE TABLE robot (
+                id SERIAL PRIMARY KEY,
+                alias TEXT,
+                userControlId UUID,
+                FOREIGN KEY(userControlId) REFERENCES users(id)
+            );
 
-        CREATE TABLE robot (
-            id SERIAL PRIMARY KEY,
-            alias TEXT,
-            userControlId UUID,
-            FOREIGN KEY(userControlId) REFERENCES user(id)
-        );
+            DROP TABLE IF EXISTS control CASCADE;
+            CREATE TABLE control (
+                id UUID default uuid_generate_v4() PRIMARY KEY,
+                userId UUID,
+                robotId UUID,
+                FOREIGN KEY(userId) REFERENCES users(id),
+                FOREIGN KEY(robotId) REFERENCES robot(id)
+            );
+            """
+    else:
+        sql = """CREATE EXTENSION IF NOT EXISTS pgcrypto;
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-        CREATE TABLE control (
-            id UUID default uuid_generate_v4() PRIMARY KEY,
-            userId UUID,
-            robotId UUID,
-            FOREIGN KEY(userId) REFERENCES user(id),
-            FOREIGN KEY(robotId) REFERENCES robot(id)
-        );
-        """
+            CREATE TABLE users (
+                    id UUID default uuid_generate_v4() PRIMARY KEY,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT UNIQUE NOT NULL
+            );
+
+            CREATE TABLE jaminfo (
+                id UUID default uuid_generate_v4() PRIMARY KEY,
+                lat DOUBLE PRECISION,
+                lng DOUBLE PRECISION,
+                intensity DOUBLE PRECISION,
+                robot_id INTEGER REFERENCES robot(id));
+
+            CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);
+
+            CREATE TABLE robot (
+                id SERIAL PRIMARY KEY,
+                alias TEXT,
+                userControlId UUID,
+                FOREIGN KEY(userControlId) REFERENCES users(id)
+            );
+
+            CREATE TABLE control (
+                id UUID default uuid_generate_v4() PRIMARY KEY,
+                userId UUID,
+                robotId UUID,
+                FOREIGN KEY(userId) REFERENCES users(id),
+                FOREIGN KEY(robotId) REFERENCES robot(id)
+            );
+            """
+
     try:
         await database.execute(sql)
         print("database created")
