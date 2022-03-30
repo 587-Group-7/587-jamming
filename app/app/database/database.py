@@ -62,7 +62,7 @@ async def create_database():
         );
         """
     try:
-        await db.execute(sql)
+        await database.execute(sql)
         print("database created")
     except asyncpg.exceptions.DataError:
         print("database already created")
