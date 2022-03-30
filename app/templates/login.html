@@ -19,12 +19,31 @@
                 <input type="text" id="username" name="username" placeholder="Username">
                 <input type="password" id="password" name="password" placeholder="Password">
                 <button type='submit' onClick="login()">Login</button>
-                <input type="text" id="username" name="username" value="Login Successful" readonly>
+                <input class="message" type="text" id="message" name="message" value="Login Successful" readonly>
             </div>
         </div>
     </main>
+
     <script>
-        const login = () => {
+        let timeout = null
+
+        const createMessage = (msg) => {
+            message.value = msg;
+            message.classList.add("appear");
+            timeout = setTimeout(() => {
+                message.classList.remove("appear");
+            }, 2000);
+            return
+        };
+
+        const login = async () => {
+            const message = document.getElementById("message");
+
+            if (timeout !== null) {
+                message.classList.remove("appear");
+                clearTimeout(timeout);
+                timeout = null
+            }
 
             // Grab username and password from text entry.
             const username = document.getElementById("username").value;
@@ -35,21 +54,23 @@
                 password
             }
 
-
-            fetch('/user/login', {
+            const res = await fetch('/user/login', {
                 method: 'POST', // or 'PUT'
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
             })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+            if (res.status === 200) {
+                json = await res.json();
+                document.cookie = `token=${json.access_token}`;
+                createMessage("Login Success! Redirecting.");
+                setTimeout(() => {
+                    window.location.replace("/");
+                }, 1500);
+            } else {
+                createMessage("Invalid credentials.");
+            }
         };
     </script>
 </body>
