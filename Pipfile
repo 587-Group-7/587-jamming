@@ -10,6 +10,7 @@ asyncpg = "*"
 python-dotenv = "*"
 jinja2 = "*"
 uvicorn = "*"
+jose = "*"
 
 [dev-packages]
 
