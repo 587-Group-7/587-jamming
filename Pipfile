@@ -6,10 +6,10 @@ name = "pypi"
 [packages]
 fastapi = "*"
 databases = "*"
-gunicorn = "*"
 asyncpg = "*"
 python-dotenv = "*"
 jinja2 = "*"
+uvicorn = "*"
 
 [dev-packages]
 

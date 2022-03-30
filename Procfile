@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath app app.main:app
+web: uvicorn --app-dir app app.main:app
