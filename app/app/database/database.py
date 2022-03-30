@@ -27,15 +27,8 @@ def provide_connection() -> databases.Database:
 
 # will attempt to create; only works if user table not already there
 # otherwise just stops due to the error.
+# all workers try this at startup, so make it resistant to errors...
 async def create_database():
-    DATABASE_CREATE = os.environ.get('DATABASE_CREATE')
-    os.environ['DATABASE_CREATE']='done'
-
-    create = True if DATABASE_CREATE is None else False
-    if (not create):
-        print("worker already did this")
-        return
-
     DATABASE_REGEN = os.environ.get('DATABASE_REGEN')
     regen = False if DATABASE_REGEN is None else True
 
@@ -83,10 +76,11 @@ async def create_database():
                 FOREIGN KEY(robotId) REFERENCES robot(id)
             );"""]
     sql.extend(sql2)
-
+    stmt = ""
     try:
         for s in sql:
+            stmt = s
             await database.execute(s)
         print("database created")
     except asyncpg.exceptions.PostgresError:
-        print("database already created")
+        print("database already created: ",stmt)
