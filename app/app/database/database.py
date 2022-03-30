@@ -58,10 +58,10 @@ async def create_database():
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
-                robot_id INTEGER REFERENCES robot(id)
+                robotId UUID REFERENCES robot(id)
             );""",
 
-            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
+            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robotId);",
 
             """CREATE TABLE control (
                 id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -92,9 +92,9 @@ async def create_database():
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
-                robot_id INTEGER REFERENCES robot(id));""",
+                robotId UUID REFERENCES robot(id));""",
 
-            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
+            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robotId);",
 
             """CREATE TABLE control (
                 id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
