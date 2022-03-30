@@ -185,13 +185,13 @@ main {
   border-radius: var(--border-radius);
 }
 
-.robots {
+.robots, .labels {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 30px;
 }
 
-.robots .robot {
+.robots .robot, .labels .label {
   height: 40px;
   width: 210px;
   background-color: #0d1a2b;
@@ -212,7 +212,17 @@ main {
   cursor: pointer;
 }
 
-.robots a {
+.robots a, .labels a {
   text-decoration: none;
   font-size: 18px;
+}
+
+.message {
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.message.appear {
+  opacity: 1!important;
+  transition: 0.3s;
 }

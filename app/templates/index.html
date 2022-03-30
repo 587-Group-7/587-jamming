@@ -20,17 +20,21 @@
                 <p>Description will go here.</p>
             </div>
             <div class="split">
-                <div class="section">
+                <div class="section center">
                     <h1>Users</h1>
-                    {% for user in users %}
-                        <p>{{user}}</p>
+                    <div class="labels">
+                        {% for user in users %}
+                            <div class="label">{{user}}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="section center">
+                    <h1>Connected Robots</h1>
+                    <div class="labels">
+                    {% for robot in robots %}
+                        <div class="label">Robot {{robot[1] (robot[0])}}</div>
                     {% endfor %}
                 </div>
-                <div class="section">
-                    <h1>Connected Robots</h1>
-                    {% for robot in robots %}
-                        <p>Robot {{robot[1] (robot[0])}}</p>
-                    {% endfor %}
                 </div>
             </div>
         </main>
