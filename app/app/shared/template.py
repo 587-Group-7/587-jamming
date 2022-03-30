@@ -6,7 +6,7 @@ NAVIGATION = """
                 <a href="/">Home</a>
             </div>
             <div class="nav-item">
-                <a href="/control_robot">Control Robot</a>
+                <a href="/view_robots">Control Robot</a>
             </div>
             <div class="nav-item">
                 <a href="/map">View RSSI Map</a>

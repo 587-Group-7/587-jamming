@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Create New Account</title>
+        <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            {{ nav|safe }}
+        </header>
+        <main>
+            <div class="section center">
+                <h1>Connect to {{robot}}</h1>
+                <p>Press the button below to connect your account to the robot.</p>
+            </div>
+        </main>
+    </body>
+</html>

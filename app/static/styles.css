@@ -211,3 +211,8 @@ main {
   transition: 0.3s;
   cursor: pointer;
 }
+
+.robots a {
+  text-decoration: none;
+  font-size: 18px;
+}
