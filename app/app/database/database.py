@@ -53,29 +53,29 @@ async def create_database():
     sql2=["CREATE EXTENSION IF NOT EXISTS pgcrypto;",
             'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
 
-            """CREATE TABLE users (
+            """CREATE TABLE IF NOT EXISTS users (
                     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                     username TEXT UNIQUE NOT NULL,
                     password TEXT UNIQUE NOT NULL
             );""",
 
-            """CREATE TABLE robot (
+            """CREATE TABLE IF NOT EXISTS robot (
                 id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 alias TEXT,
                 userControlId UUID,
                 FOREIGN KEY(userControlId) REFERENCES users(id)
             );""",
 
-            """CREATE TABLE jaminfo (
+            """CREATE TABLE IF NOT EXISTS jaminfo (
                 id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
                 robotId UUID REFERENCES robot(id));""",
 
-            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robotId);",
+            "CREATE INDEX IF NOT EXISTS jaminfo_robot_idx ON jaminfo(robotId);",
 
-            """CREATE TABLE control (
+            """CREATE TABLE IF NOT EXISTS control (
                 id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 userId UUID,
                 robotId UUID,
