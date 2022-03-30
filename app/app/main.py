@@ -13,7 +13,8 @@ ROOTDIR = os.environ.get('ROOTDIR')
 STATICDIR = "static" if ROOTDIR is None else ROOTDIR+"static"
 app.mount("/static", StaticFiles(directory=STATICDIR), name="static")
 
-templates = Jinja2Templates(directory="templates")
+TEMPLATEDIR = "templates" if ROOTDIR is None else ROOTDIR+"templates"
+templates = Jinja2Templates(directory=TEMPLATEDIR)
 
 app.include_router(robot.router)
 app.include_router(user.router)
