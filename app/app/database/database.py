@@ -87,4 +87,3 @@ async def create_database():
         except asyncpg.exceptions.DataError:
             print("database already created")
 
-`
