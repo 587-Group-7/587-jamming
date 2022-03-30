@@ -81,6 +81,6 @@ async def create_database():
         for s in sql:
             stmt = s
             await database.execute(s)
-        print("INFO:    database created")
+        print("INFO:     Database bootstrapped")
     except asyncpg.exceptions.PostgresError:
-        print("INFO:    database already created: ",stmt)
+        print("INFO:     Database bootstrap failure on: ",stmt)
