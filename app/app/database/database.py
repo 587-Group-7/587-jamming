@@ -8,6 +8,7 @@ database = databases.Database(DATABASE_URL)
 
 async def startup():
     # Start database on app startup.
+    print("INFO:     PORT is ",os.environ['PORT'])
     try:
         await database.connect()
         print("INFO:     Successfully connected to database.")
