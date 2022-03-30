@@ -4,10 +4,13 @@ from .routers import robot, user, command, control, measurement
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+import os
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+ROOTDIR = os.environ.get('ROOTDIR')
+STATICDIR = "static" if ROOTDIR is None else ROOTDIR+"static"
+app.mount("/static", StaticFiles(directory=STATICDIR), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
