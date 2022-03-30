@@ -30,9 +30,9 @@ def provide_connection() -> databases.Database:
 async def create_database():
     DATABASE_REGEN = os.environ.get('DATABASE_REGEN')
     regen = False if DATABASE_REGEN is None else True
-    print("regen: ",regen)
 
     if (regen):
+        print("regenerating database, bye-bye data...")
         sql = ["CREATE EXTENSION IF NOT EXISTS pgcrypto;",
             'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
             "DROP TABLE IF EXISTS users CASCADE;",
@@ -41,20 +41,20 @@ async def create_database():
             "DROP TABLE IF EXISTS control CASCADE;",
 
             """CREATE TABLE users (
-                    id UUID default uuid_generate_v4() PRIMARY KEY,
+                    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                     username TEXT UNIQUE NOT NULL,
                     password TEXT UNIQUE NOT NULL
             );""",
 
             """CREATE TABLE robot (
-                id SERIAL PRIMARY KEY,
+                id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 alias TEXT,
                 userControlId UUID,
                 FOREIGN KEY(userControlId) REFERENCES users(id)
             );""",
 
             """CREATE TABLE jaminfo (
-                id UUID default uuid_generate_v4() PRIMARY KEY,
+                id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
@@ -64,7 +64,7 @@ async def create_database():
             "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
 
             """CREATE TABLE control (
-                id UUID default uuid_generate_v4() PRIMARY KEY,
+                id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 userId UUID,
                 robotId UUID,
                 FOREIGN KEY(userId) REFERENCES users(id),
@@ -75,13 +75,20 @@ async def create_database():
             'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
 
             """CREATE TABLE users (
-                    id UUID default uuid_generate_v4() PRIMARY KEY,
+                    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                     username TEXT UNIQUE NOT NULL,
                     password TEXT UNIQUE NOT NULL
             );""",
 
+            """CREATE TABLE robot (
+                id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+                alias TEXT,
+                userControlId UUID,
+                FOREIGN KEY(userControlId) REFERENCES users(id)
+            );""",
+
             """CREATE TABLE jaminfo (
-                id UUID default uuid_generate_v4() PRIMARY KEY,
+                id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
@@ -89,15 +96,8 @@ async def create_database():
 
             "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
 
-            """CREATE TABLE robot (
-                id SERIAL PRIMARY KEY,
-                alias TEXT,
-                userControlId UUID,
-                FOREIGN KEY(userControlId) REFERENCES users(id)
-            );""",
-
             """CREATE TABLE control (
-                id UUID default uuid_generate_v4() PRIMARY KEY,
+                id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
                 userId UUID,
                 robotId UUID,
                 FOREIGN KEY(userId) REFERENCES users(id),
