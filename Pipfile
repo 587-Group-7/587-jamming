@@ -4,10 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pydantic = "*"
 fastapi = "*"
-uvicorn = "*"
 databases = "*"
+gunicorn = "*"
 
 [dev-packages]
 
