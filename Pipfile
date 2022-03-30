@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "*"
-databases = "*"
+fastapi = {extras = ["all"], version = "*"}
+databases = {extras = ["postgresql"], version = "*"}
 asyncpg = "*"
 python-dotenv = "*"
 jinja2 = "*"
