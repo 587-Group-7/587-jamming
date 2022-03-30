@@ -46,21 +46,22 @@ async def create_database():
                     password TEXT UNIQUE NOT NULL
             );""",
 
-            """CREATE TABLE jaminfo (
-                id UUID default uuid_generate_v4() PRIMARY KEY,
-                lat DOUBLE PRECISION,
-                lng DOUBLE PRECISION,
-                intensity DOUBLE PRECISION,
-                robot_id INTEGER REFERENCES robot(id));""",
-
-            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
-
             """CREATE TABLE robot (
                 id SERIAL PRIMARY KEY,
                 alias TEXT,
                 userControlId UUID,
                 FOREIGN KEY(userControlId) REFERENCES users(id)
             );""",
+
+            """CREATE TABLE jaminfo (
+                id UUID default uuid_generate_v4() PRIMARY KEY,
+                lat DOUBLE PRECISION,
+                lng DOUBLE PRECISION,
+                intensity DOUBLE PRECISION,
+                robot_id INTEGER REFERENCES robot(id)
+            );""",
+
+            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
 
             """CREATE TABLE control (
                 id UUID default uuid_generate_v4() PRIMARY KEY,
