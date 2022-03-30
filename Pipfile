@@ -8,6 +8,8 @@ fastapi = "*"
 databases = "*"
 gunicorn = "*"
 asyncpg = "*"
+python-dotenv = "*"
+jinja2 = "*"
 
 [dev-packages]
 

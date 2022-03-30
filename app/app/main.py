@@ -9,9 +9,8 @@ import os
 app = FastAPI()
 
 ROOTDIR = os.environ.get('ROOTDIR')
-ROOTDIR = '/' if ROOTDIR is None else ROOTDIR
-STATICDIR = ROOTDIR+"static"
-app.mount(ROOTDIR, StaticFiles(directory="static"), name="static")
+STATICDIR = "static" if ROOTDIR is None else ROOTDIR+"static"
+app.mount("/static", StaticFiles(directory=STATICDIR), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
