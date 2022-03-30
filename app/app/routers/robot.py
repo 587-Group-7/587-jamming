@@ -48,4 +48,4 @@ async def get_control_by_robot_id(robot: Robot, db=Depends(database.provide_conn
 
 @router.get("/list", status_code=200)
 async def list_controls(request: Request, db=Depends(database.provide_connection)):
-    return await db.fetch_all("SELECT * FROM control")
+    return await db.fetch_all("SELECT * FROM robot")

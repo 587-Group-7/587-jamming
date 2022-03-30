@@ -9,7 +9,7 @@
             @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
 
             :root {
-                --color-0: rgb(255, 255, 255);
+                --color-0: #ffffff;
                 --color-1: #051014;
                 --color-2: #A9FBD7;
                 --color-3: #cec0c4;
@@ -102,8 +102,10 @@
             </div>
             <div class="split">
                 <div class="section">
-                    <h1>Online Users</h1>
-                    <p>Online users displayed here.</p>
+                    <h1>Users</h1>
+                    {% for user in users %}
+                        <p>{{user}}</p>
+                    {% endfor %}
                 </div>
                 <div class="section">
                     <h1>Connected Robots</h1>
