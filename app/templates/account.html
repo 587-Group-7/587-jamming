@@ -1,27 +1,95 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>Create New Account</title>
-        <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
-    </head>
-    <body>
-        <header>
-            {{ nav|safe }}
-        </header>
-        <main>
-            <div class="section center">
-                <h1>Create Account</h1>
-                <p>In order to control a robot, you must first register an account. We do this to prevent multiple users from controlling the same robot.</p>
-                <div class="form">
-                        <input type="text" id="username" name="username" placeholder="Username">
-                        <input type="password" id="password" name="password" placeholder="Password">
-                        <input type="password" id="confirm" name="confirm" placeholder="Confirm Password">
-                        <input style="opacity: 0" type="password" id="a" name="a" placeholder="">
-                        <button type='submit'>Create Account</button>
-                        <input type="text" id="username" name="username" value="Account Creation Successful" readonly>
-                </div>
+
+<head>
+    <title>Create New Account</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    <style>
+        .message {
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .message.appear {
+            opacity: 1!important;
+            transition: 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        {{ nav|safe }}
+    </header>
+    <main>
+        <div class="section center">
+            <h1>Create Account</h1>
+            <p>In order to control a robot, you must first register an account. We do this to prevent multiple users
+                from controlling the same robot.</p>
+            <div class="form">
+                <input type="text" id="username" name="username" placeholder="Username">
+                <input type="password" id="password" name="password" placeholder="Password">
+                <input type="password" id="confirm" name="confirm" placeholder="Confirm Password">
+                <input style="opacity: 0" type="password" id="a" name="a" placeholder="">
+                <button type='submit' onclick="create()">Create Account</button>
+                <input class="message" type="text" id="message" name="message" value="Account Creation Successful"
+                    readonly>
             </div>
-        </main>
-    </body>
+        </div>
+    </main>
+</body>
+<script>
+    let timeout = null
+
+    const createMessage = (msg) => {
+            message.value = msg;
+            message.classList.add("appear");
+            timeout = setTimeout(() => {
+                message.classList.remove("appear");
+            }, 2000);
+            return
+    };
+
+    const create = async () => {
+        const message = document.getElementById("message");
+
+        if (timeout !== null) {
+            message.classList.remove("appear");
+            clearTimeout(timeout);
+            timeout = null
+        }
+
+        // Grab username and password from text entry.
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const confirm = document.getElementById("confirm").value;
+
+        if (password !== confirm) {
+            createMessage("Password Mismatch");
+        }
+
+        const data = {
+            username,
+            password
+        }
+
+        const res = await fetch('/user', {
+            method: 'POST', // or 'PUT'
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        if (res.status === 201) {
+            createMessage("Success! Redirecting...");
+            setTimeout(() => {
+                window.location.replace("/login");
+            }, 2000);
+        } else {
+            createMessage("Account already exists.");
+        }
+    };
+</script>
+
 </html>
