@@ -32,80 +32,78 @@ def provide_connection() -> databases.Database:
 # otherwise just stops due to the error.
 async def create_database():
     if (regen):
-        sql = """CREATE EXTENSION IF NOT EXISTS pgcrypto;
-            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-            DROP TABLE IF EXISTS users CASCADE;
-            CREATE TABLE users (
+        sql = ["CREATE EXTENSION IF NOT EXISTS pgcrypto;",
+        'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
+            "DROP TABLE IF EXISTS users CASCADE;",
+            """CREATE TABLE users (
                     id UUID default uuid_generate_v4() PRIMARY KEY,
                     username TEXT UNIQUE NOT NULL,
                     password TEXT UNIQUE NOT NULL
-            );
+            );""",
 
-            DROP TABLE IF EXISTS jaminfo CASCADE;
-            CREATE TABLE jaminfo (
+            "DROP TABLE IF EXISTS jaminfo CASCADE;",
+            """CREATE TABLE jaminfo (
                 id UUID default uuid_generate_v4() PRIMARY KEY,
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
-                robot_id INTEGER REFERENCES robot(id));
+                robot_id INTEGER REFERENCES robot(id));""",
 
-            CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);
+            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
 
-            DROP TABLE IF EXISTS robot CASCADE;
-            CREATE TABLE robot (
+            "DROP TABLE IF EXISTS robot CASCADE;",
+            """CREATE TABLE robot (
                 id SERIAL PRIMARY KEY,
                 alias TEXT,
                 userControlId UUID,
                 FOREIGN KEY(userControlId) REFERENCES users(id)
-            );
+            );""",
 
-            DROP TABLE IF EXISTS control CASCADE;
-            CREATE TABLE control (
+            "DROP TABLE IF EXISTS control CASCADE;",
+            """CREATE TABLE control (
                 id UUID default uuid_generate_v4() PRIMARY KEY,
                 userId UUID,
                 robotId UUID,
                 FOREIGN KEY(userId) REFERENCES users(id),
                 FOREIGN KEY(robotId) REFERENCES robot(id)
-            );
-            """
+            );"""]
     else:
-        sql = """CREATE EXTENSION IF NOT EXISTS pgcrypto;
-            CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        sql = ["CREATE EXTENSION IF NOT EXISTS pgcrypto;",
+            'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";',
 
-            CREATE TABLE users (
+            """CREATE TABLE users (
                     id UUID default uuid_generate_v4() PRIMARY KEY,
                     username TEXT UNIQUE NOT NULL,
                     password TEXT UNIQUE NOT NULL
-            );
+            );""",
 
-            CREATE TABLE jaminfo (
+            """CREATE TABLE jaminfo (
                 id UUID default uuid_generate_v4() PRIMARY KEY,
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
-                robot_id INTEGER REFERENCES robot(id));
+                robot_id INTEGER REFERENCES robot(id));""",
 
-            CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);
+            "CREATE INDEX jaminfo_robot_idx ON jaminfo(robot_id);",
 
-            CREATE TABLE robot (
+            """CREATE TABLE robot (
                 id SERIAL PRIMARY KEY,
                 alias TEXT,
                 userControlId UUID,
                 FOREIGN KEY(userControlId) REFERENCES users(id)
-            );
+            );""",
 
-            CREATE TABLE control (
+            """CREATE TABLE control (
                 id UUID default uuid_generate_v4() PRIMARY KEY,
                 userId UUID,
                 robotId UUID,
                 FOREIGN KEY(userId) REFERENCES users(id),
                 FOREIGN KEY(robotId) REFERENCES robot(id)
-            );
-            """
+            );"""]
 
     try:
-        await database.execute(sql)
+        for s in sql:
+            await database.execute(s)
         print("database created")
     except asyncpg.exceptions.DataError:
         print("database already created")
