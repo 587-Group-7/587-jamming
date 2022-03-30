@@ -29,7 +29,7 @@ def provide_connection() -> databases.Database:
 # otherwise just stops due to the error.
 async def create_database():
     DATABASE_CREATE = os.environ.get('DATABASE_CREATE')
-    os.environ.update('DATABASE_CREATE','done')
+    os.environ['DATABASE_CREATE']='done'
 
     create = True if DATABASE_CREATE is None else False
     if (not create):
