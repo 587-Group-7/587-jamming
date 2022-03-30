@@ -1,1 +1,1 @@
-web: uvicorn --app-dir app app.main:app
+web: uvicorn --app-dir app app.main:app --host 0.0.0.0 --port 80
