@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Create New Account</title>
+        <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            {{ nav|safe }}
+        </header>
+        <main>
+            <div class="section center">
+                <h1>Create Account</h1>
+                <p>In order to control a robot, you must first register an account. We do this to prevent multiple users from controlling the same robot.</p>
+                <div class="form">
+                        <input type="text" id="username" name="username" placeholder="Username">
+                        <input type="password" id="password" name="password" placeholder="Password">
+                        <input type="password" id="confirm" name="confirm" placeholder="Confirm Password">
+                        <input style="opacity: 0" type="password" id="a" name="a" placeholder="">
+                        <button type='submit'>Create Account</button>
+                        <input type="text" id="username" name="username" value="Account Creation Successful" readonly>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

@@ -40,3 +40,5 @@ CREATE TABLE control (
     FOREIGN KEY(robotId) REFERENCES robot(id)
 );
 
+INSERT INTO robot (alias) VALUES ("Red Robot");
+

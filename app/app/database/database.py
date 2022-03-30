@@ -3,12 +3,12 @@ import os
 import asyncpg
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
-DATABASE_URL = 'postgresql://postgres:postgres@0.0.0.0:5432/dev' if DATABASE_URL is None else DATABASE_URL
+DATABASE_URL = 'postgresql://postgres:postgres@0.0.0.0:5432/' if DATABASE_URL is None else DATABASE_URL
 database = databases.Database(DATABASE_URL)
 
 async def startup():
     # Start database on app startup.
-    print("INFO:     PORT is ",os.environ['PORT'])
+    # print("INFO:     PORT is ",os.environ['PORT'])
     try:
         await database.connect()
         print("INFO:     Successfully connected to database.")
@@ -16,7 +16,7 @@ async def startup():
         print("ERROR:    Could not connect to database.")
         raise 
     # now make the tables if it's the first time (bootstrap)
-    await create_database()
+    # await create_database()
 
 async def shutdown():
     # Stop database on shutdown.

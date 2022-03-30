@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Create New Account</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        {{ nav|safe }}
+    </header>
+    <main>
+        <div class="section center">
+            <h1>Available Robots</h1>
+            <p>Select a robot from the list to take control.</p>
+            <div class="robots">
+                {% for robot in robots %}
+                <div class="robot">
+                    {{ robot }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

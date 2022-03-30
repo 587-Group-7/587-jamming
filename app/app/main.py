@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, Depends
+from .shared import template
 from .database import database
 from .routers import robot, user, command, control, measurement
 from fastapi.responses import HTMLResponse
@@ -20,13 +21,13 @@ app.include_router(command.router)
 app.include_router(control.router)
 app.include_router(measurement.router)
 
-# @app.on_event("startup")
-# async def start():
-#     await database.startup()
+@app.on_event("startup")
+async def start():
+    await database.startup()
 
-# @app.on_event("shutdown")
-# async def stop():
-#     await database.shutdown()
+@app.on_event("shutdown")
+async def stop():
+    await database.shutdown()
 
 # Simple HTML example
 # @app.get("/", response_class=HTMLResponse)
@@ -45,7 +46,23 @@ app.include_router(measurement.router)
 
 # Templated HTML examples
 @app.get("/", response_class=HTMLResponse)
-async def control(request: Request, db=Depends(database.provide_connection)):
-    users = await db.fetch_all("SELECT username FROM user")
+async def home(request: Request, db=Depends(database.provide_connection)):
+    users = await db.fetch_all("SELECT username FROM users")
     robots = await db.fetch_all("SELECT * FROM robot")
-    return templates.TemplateResponse("index.html", {"request": request, "users": ["One", "Two", "Three"]})
+    return templates.TemplateResponse("index.html", {"request": request, "users": [dict(user)['username'] for user in users], "robots": [(dict(robot)['id'], dict(robot)['alias'])for robot in robots], "nav": template.NAVIGATION})
+
+@app.get("/account", response_class=HTMLResponse)
+async def create_account(request: Request):
+    return templates.TemplateResponse("account.html", {"request": request, "nav": template.NAVIGATION})
+
+@app.get("/login", response_class=HTMLResponse)
+async def create_account(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "nav": template.NAVIGATION})
+
+@app.get("/map", response_class=HTMLResponse)
+async def create_account(request: Request):
+    return templates.TemplateResponse("map.html", {"request": request, "nav": template.NAVIGATION})
+
+@app.get("/control_robot", response_class=HTMLResponse)
+async def create_account(request: Request):
+    return templates.TemplateResponse("robot.html", {"request": request, "nav": template.NAVIGATION, "robots": ["Red Robot", "Blue Robot"]})
