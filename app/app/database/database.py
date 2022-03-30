@@ -15,7 +15,7 @@ async def startup():
         print("ERROR:    Could not connect to database.")
         raise 
     # now make the tables if it's the first time (bootstrap)
-    create_database()
+    await create_database()
 
 async def shutdown():
     # Stop database on shutdown.
@@ -27,7 +27,7 @@ def provide_connection() -> databases.Database:
 
 # will attempt to create; only works if user table not already there
 # otherwise just stops due to the error.
-def create_database():
+async def create_database():
     sql = """CREATE EXTENSION IF NOT EXISTS pgcrypto;
         CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
