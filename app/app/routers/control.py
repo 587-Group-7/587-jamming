@@ -11,6 +11,9 @@ from fastapi import APIRouter, Depends, Request, HTTPException, status
 # Type imports
 from ..shared.definitions import User, Robot, Control
 
+# Auth utils
+from ..utils.auth import get_current_user
+
 router = APIRouter(
     prefix="/control",
     tags=["control"],
@@ -19,7 +22,7 @@ router = APIRouter(
 
 
 @router.post("/", status_code=200)
-async def create_control(user: User, robot: Robot, db=Depends(database.provide_connection)):
+async def create_control(robot: Robot, user = Depends(get_current_user), db = Depends(database.provide_connection)):
     try:
         await db.execute("INSERT INTO control (userId, robotId) VALUES (:userId, :robotId)", values={"userId": user.id, "robotId": robot.id})
     except asyncpg.exceptions.DataError:

@@ -15,9 +15,7 @@ DROP TABLE IF EXISTS robot CASCADE;
 
 CREATE TABLE robot (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    alias TEXT,
-    userControlId UUID,
-    FOREIGN KEY(userControlId) REFERENCES user(id)
+    alias TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS jaminfo CASCADE;

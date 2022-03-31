@@ -12,6 +12,7 @@
 
 html,
 body {
+  min-height: 110vh;
   font-family: "Poppins", sans-serif;
   height: 100%;
   width: 100%;

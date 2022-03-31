@@ -12,8 +12,17 @@
         <main>
             <div class="section center">
                 <h1>Connect to {{robot}}</h1>
-                <p>Press the button below to connect your account to the robot.</p>
+                <p id="control">Press the button below to connect your account to the robot.</p>
+                <button id="connect" onclick="connect()">Connect</button>
             </div>
         </main>
+        <script>
+            const connect = () => {
+                if (auth === false) {
+                    alert("Please create an account or log in before connecting to a robot.");
+                    return
+                }
+            };
+        </script>
     </body>
 </html>

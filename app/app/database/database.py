@@ -55,9 +55,7 @@ async def create_database():
 
             """CREATE TABLE IF NOT EXISTS robot (
                 id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-                alias TEXT,
-                userControlId UUID,
-                FOREIGN KEY(userControlId) REFERENCES users(id)
+                alias TEXT NOT NULL
             );""",
 
             """CREATE TABLE IF NOT EXISTS jaminfo (

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Create New Account</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        {{ nav|safe }}
+    </header>   
+    <main>
+        <div class="section center">
+            <h1>Create Test Robot</h1>
+            <p>Interface to create a fake robot for testing.</p>
+
+            <div class="form">
+                <input type="text" id="alias" name="alias" placeholder="Robot Alias">
+                <button type='submit' onClick="create_robot()">Create Test Robot</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        const create_robot = async () => {
+
+            const alias = document.getElementById("alias").value;
+
+            const data = {
+                alias
+            };
+
+            const res = await fetch('/robot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            if (res.status === 200) {
+                alert("Success!")
+            } else {
+                alert("Error!")
+            }
+        };
+    </script>
+</body>
+
+</html>

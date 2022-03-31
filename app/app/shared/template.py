@@ -26,6 +26,8 @@ NAVIGATION = """
             </div>
         </div>
         <script>
+            let auth = false
+
             const getCookie = (name) => {
                 var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
                 if (match) {

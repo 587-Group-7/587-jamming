@@ -17,9 +17,9 @@
             <p>Select a robot from the list to take control.</p>
             <div class="robots">
                 {% for robot in robots %}
-                <a href="/robot_control/{{robot}}">
+                <a href="/robot-control/id/{{robot[0]}}/alias/{{robot[1]}}">
                     <div class="robot">
-                        {{ robot }}
+                        {{ robot[1] }}
                     </div>
                 </a>
                 {% endfor %}
