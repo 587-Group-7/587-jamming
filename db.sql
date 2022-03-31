@@ -27,6 +27,7 @@ CREATE TABLE jaminfo (
     lat DOUBLE PRECISION,
     lng DOUBLE PRECISION,
     intensity DOUBLE PRECISION,
+    logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     robotId UUID REFERENCES robot(id)
 );
 

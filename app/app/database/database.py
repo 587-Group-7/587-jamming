@@ -65,6 +65,7 @@ async def create_database():
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
+                logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 robotId UUID REFERENCES robot(id));""",
 
             "CREATE INDEX IF NOT EXISTS jaminfo_robot_idx ON jaminfo(robotId);",
@@ -76,7 +77,7 @@ async def create_database():
                 FOREIGN KEY(userId) REFERENCES users(id),
                 FOREIGN KEY(robotId) REFERENCES robot(id)
             );""",
-            "INSERT INTO robot(alias) SELECT 'Red Robot' EXCEPT SELECT * FROM robot"
+            "INSERT INTO robot(alias) SELECT 'Red Robot' EXCEPT SELECT alias FROM robot"
             ]
     sql.extend(sql2)
     stmt = ""
