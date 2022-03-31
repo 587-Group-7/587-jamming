@@ -8,9 +8,9 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	
-	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  <link rel="shortcut icon" href="{{ url_for('static', path='/favicon.ico') }}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
 
 	<style>
 		html, body {
@@ -36,23 +36,26 @@
 
     var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	    maxZoom: 19,
+      tileSize: 512,
+      zoomOffset: -1,
 	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
 <!-- based on https://www.youtube.com/watch?v=wwA0wTJCywo&list=PLm76kc4VPkn27kRYq-58COO5r5bQdrKyy&index=23 -->
-fetch("{{ url_for('static', path='/sampledata.geojson') }}", 
+fetch("/mapped') }}", 
    {method: 'GET'})
 .then(response => response.json())
 .then(json => {
+  console.log(json);
    var min = 99.0;
    var max = 0.0;
-   json.features.forEach(function(feature) {
-     if (feature.properties.mag<min) { min = feature.properties.mag; }
-     if (feature.properties.mag>max) { max = feature.properties.mag; }
+   json.forEach(function(intensity) {
+     if (intensity<min) { min = intensity; }
+     if (intensity>max) { max = intensity; }
    });
    var heatmapPts = [];
-   json.features.forEach(function(feature) {
-     heatmapPts.push([feature.geometry.coordinates[1],feature.geometry.coordinates[0],feature.properties.mag/max]);
+   json.forEach(function(lng,lat,intensity) {
+     heatmapPts.push([lng,lat,intensity/max]);
    });
    var heat = L.heatLayer(heatmapPts, {
      radius: 20, minOpacity: 0.4,
@@ -64,7 +67,7 @@ fetch("{{ url_for('static', path='/sampledata.geojson') }}",
       '1.00': 'rgb(255,0,0)' 
      }
    }).addTo(map);
-   map.fitBounds(json.getBounds());
+   # map.fitBounds(json.getBounds());
 })
 .catch(error => console.log(error.message));
 </script>
