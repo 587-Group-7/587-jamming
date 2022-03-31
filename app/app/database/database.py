@@ -8,7 +8,6 @@ database = databases.Database(DATABASE_URL)
 
 async def startup():
     # Start database on app startup.
-    # print("INFO:     PORT is ",os.environ['PORT'])
     try:
         await database.connect()
         print("INFO:     Successfully connected to database.")
@@ -16,7 +15,7 @@ async def startup():
         print("ERROR:    Could not connect to database.")
         raise 
     # now make the tables if it's the first time (bootstrap)
-    # await create_database()
+    await create_database()
 
 async def shutdown():
     # Stop database on shutdown.
@@ -26,9 +25,10 @@ async def shutdown():
 def provide_connection() -> databases.Database:
     return database
 
-# will attempt to create; only works if user table not already there
-# otherwise just stops due to the error.
-# all workers try this at startup, so make it resistant to errors...
+# will attempt to create; will quietly stop on a database error
+# but will do nothing if the tables all exist (unless told to regen)
+# all workers try this at startup, so run with REGEN only ONCE
+# then run again without it. That ensure the tables are correct.
 async def create_database():
     DATABASE_REGEN = os.environ.get('DATABASE_REGEN')
     regen = False if DATABASE_REGEN is None else True
@@ -75,7 +75,9 @@ async def create_database():
                 robotId UUID,
                 FOREIGN KEY(userId) REFERENCES users(id),
                 FOREIGN KEY(robotId) REFERENCES robot(id)
-            );"""]
+            );""",
+            "INSERT INTO robot(alias) SELECT 'Red Robot' EXCEPT SELECT * FROM robot"
+            ]
     sql.extend(sql2)
     stmt = ""
     try:
@@ -84,4 +86,4 @@ async def create_database():
             await database.execute(s)
         print("INFO:     Database bootstrapped")
     except asyncpg.exceptions.PostgresError:
-        print("INFO:     Database bootstrap failure on: ",stmt)
+        print("INFO:     Restart without DATABASE_REGEN; bootstrap failure on: ",stmt)
