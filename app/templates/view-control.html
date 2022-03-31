@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>View Robot Controls</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        {{ nav|safe }}
+    </header>
+    <main>
+        <div class="section center">
+            <h1>Current Robot Controls</h1>
+            <p>These are the robots currently under control by your account. If you are done using them, please release the control so that another user may control a robot.</p>
+        </div>
+    </main>
+    <script>
+        `<div class="labels">
+                    {% for robot in robots %}
+                        <div class="label">{{robot[1]}}</div>
+                    {% endfor %}`
+        
+        const fetchRobots = async () => {
+
+        };
+
+        fetchRobots();
+    </script>
+</body>
+
+</html>

@@ -92,9 +92,13 @@ async def create_account(request: Request, db=Depends(database.provide_connectio
     return templates.TemplateResponse("robot.html", {"request": request, "nav": template.NAVIGATION, "robots": [(dict(robot)['id'], dict(robot)['alias'])for robot in robots]})
     
 @app.get("/robot-control/id/{id}/alias/{robot_alias}", response_class=HTMLResponse)
-async def create_account(request: Request, robot_alias):
-    return templates.TemplateResponse("control.html", {"request": request, "nav": template.NAVIGATION, "robot": robot_alias})
+async def create_account(request: Request, robot_alias, id):
+    return templates.TemplateResponse("control.html", {"request": request, "nav": template.NAVIGATION, "robot": robot_alias, "id": id})
 
 @app.get("/create-test-robot", response_class=HTMLResponse)
 async def create_robot_test(request: Request):
     return templates.TemplateResponse("create-robot-test.html", {"request": request, "nav": template.NAVIGATION})
+
+@app.get("/view-control", response_class=HTMLResponse)
+async def create_robot_test(request: Request):
+    return templates.TemplateResponse("view-control.html", {"request": request, "nav": template.NAVIGATION})

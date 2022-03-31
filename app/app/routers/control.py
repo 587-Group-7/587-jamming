@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 
 # Type imports
-from ..shared.definitions import User, Robot, Control
+from ..shared.definitions import User, Robot, Control, RobotID
 
 # Auth utils
 from ..utils.auth import get_current_user
@@ -22,9 +22,9 @@ router = APIRouter(
 
 
 @router.post("/", status_code=200)
-async def create_control(robot: Robot, user = Depends(get_current_user), db = Depends(database.provide_connection)):
+async def create_control(robot: RobotID, user = Depends(get_current_user), db = Depends(database.provide_connection)):
     try:
-        await db.execute("INSERT INTO control (userId, robotId) VALUES (:userId, :robotId)", values={"userId": user.id, "robotId": robot.id})
+        return await db.fetch_one("INSERT INTO control (userId, robotId) VALUES (:userId, :robotId) RETURNING id", values={"userId": user["id"], "robotId": robot.id})
     except asyncpg.exceptions.DataError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -45,6 +45,11 @@ async def delete_control(control: Control, db=Depends(database.provide_connectio
 async def get_control_by_robot_id(control: Control, db=Depends(database.provide_connection)):
     async with db.transaction():
         return await db.fetch_one("SELECT userId, robotId FROM control WHERE id=:id", values={"id": control.id})
+
+@router.get("/user", status_code=200)
+async def get_control_by_user_id(user = Depends(get_current_user), db=Depends(database.provide_connection)):
+    async with db.transaction():
+        return await db.fetch_all("SELECT robotId FROM control WHERE userId=:userId", values={"userId": user["id"]})
 
 @router.get("/list", status_code=200)
 async def list_controls(db=Depends(database.provide_connection)):

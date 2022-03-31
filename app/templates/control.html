@@ -1,28 +1,51 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>Create New Account</title>
-        <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
-    </head>
-    <body>
-        <header>
-            {{ nav|safe }}
-        </header>
-        <main>
-            <div class="section center">
-                <h1>Connect to {{robot}}</h1>
-                <p id="control">Press the button below to connect your account to the robot.</p>
-                <button id="connect" onclick="connect()">Connect</button>
-            </div>
-        </main>
-        <script>
-            const connect = () => {
-                if (auth === false) {
-                    alert("Please create an account or log in before connecting to a robot.");
-                    return
-                }
-            };
-        </script>
-    </body>
+
+<head>
+    <title>Create New Account</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        {{ nav|safe }}
+    </header>
+    <main>
+        <div class="section center">
+            <h1>Connect to {{robot}}</h1>
+            <p id="control">Press the button below to connect your account to the robot.</p>
+            <button id="connect" onclick="connect()">Connect</button>
+        </div>
+    </main>
+    <script>
+        const connect = async () => {
+            if (auth === false) {
+                alert("Please create an account or log in before connecting to a robot.");
+                return
+            }
+
+            const token = getCookie('token');
+
+            const data = { id: "{{id}}" };
+
+            const res = await fetch('/control', {
+                method: 'POST', // or 'PUT'
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(data)
+            })
+            if (res.status === 200) {
+                json = await res.json();
+                document.cookie = `controlId=${json.id}; ${document.cookie}`;
+                document.getElementById("control");
+            } else {
+                alert("Could not take control of robot. Please relog and try again.");
+            }
+        };
+    </script>
+</body>
+
 </html>

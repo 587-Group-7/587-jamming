@@ -22,6 +22,9 @@ NAVIGATION = """
         </div>
         <div class="right" id="cred">
             <div class="nav-item" style="cursor: pointer">
+                <a href="/view-control">View Controlled Robots</a>
+            </div>
+            <div class="nav-item" style="cursor: pointer">
                 <a onclick="logout()">Log Out</a>
             </div>
         </div>
@@ -51,7 +54,8 @@ NAVIGATION = """
                 if (res.status === 200) {
                     json = await res.json();
                     document.cookie = `token=${json.access_token}`;
-                    document.getElementById("cred").style.display = "inline";
+                    document.getElementById("cred").style.display = "flex";
+                    auth = true;
                 } else {
                     document.getElementById("nocred").style.display = "flex";
                 }
@@ -64,6 +68,7 @@ NAVIGATION = """
                 date.setTime(-1);
                 const expires = `; expires=${date.toGMTString()}`;
                 document.cookie = `token=${json.access_token}${expires}`;
+                auth = false;
                 window.location.replace("/");
             };
         </script>

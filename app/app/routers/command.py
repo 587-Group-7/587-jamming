@@ -7,7 +7,7 @@ import asyncpg
 from fastapi import APIRouter, Depends, Request, HTTPException, status
 
 # Type imports
-from ..shared.definitions import Control, User, Robot
+from ..shared.definitions import Control, User, Robot, RobotID
 from typing import Optional
 
 # Pydantic typing
@@ -35,7 +35,7 @@ router = APIRouter(
 
 # TODO: Robotic movements would be implemented here. Web Sockets may be ideal for communicating information.
 @router.post("/", status_code=200)
-async def execute_command(control: Control, user: User, robot: Robot, command: Command, db=Depends(database.provide_connection)):
+async def execute_command(control: Control, user: User, robot: RobotID, command: Command, db=Depends(database.provide_connection)):
     control = await db.fetch_one("SELECT userId, robotId FROM control WHERE id=:id", values={"id": control.id})
     if (control is not None and control.userId == user.id and control.robotId == robot.id):
         pass

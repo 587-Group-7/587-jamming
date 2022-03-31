@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Depends, Request, HTTPException, status, WebSocket
 
 # Type imports
-from ..shared.definitions import User, Robot
+from ..shared.definitions import User, Robot, RobotID
 
 router = APIRouter(
     prefix="/robot",
@@ -33,7 +33,7 @@ async def create_robot(robot: RobotAlias, db=Depends(database.provide_connection
         )
 
 @router.delete("/", status_code=200)
-async def delete_robot(robot: Robot, db=Depends(database.provide_connection)):
+async def delete_robot(robot: RobotID, db=Depends(database.provide_connection)):
     try:
         await db.execute("DELETE FROM robot where id=:id", values={"id": robot.id})
     except asyncpg.exceptions.DataError:
@@ -43,7 +43,7 @@ async def delete_robot(robot: Robot, db=Depends(database.provide_connection)):
         )
 
 @router.get("/", status_code=200)
-async def get_robot_by_id(robot: Robot, db=Depends(database.provide_connection)):
+async def get_robot_by_id(robot: RobotID, db=Depends(database.provide_connection)):
     return await db.fetch_one("SELECT alias FROM robot WHERE id=:id", values={"id": robot.id})
 
 @router.get("/list", status_code=200)
