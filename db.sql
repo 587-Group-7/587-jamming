@@ -46,7 +46,8 @@ CREATE TABLE control (
 -- only one Red Robot.
 INSERT INTO robot (alias) SELECT 'Red Robot' EXCEPT SELECT alias FROM robot;
 
--- use this table to track database changes
+-- use this table to track database changes; don't recreate this table,
+-- just create it the first time...
 CREATE TABLE IF NOT EXISTS dbver(dbver int);
 -- only want one row, start at 1
 -- this ensures we won't insert if there's already a row...
@@ -56,4 +57,4 @@ INSERT INTO dbver SELECT 1 EXCEPT SELECT COUNT(dbver) FROM dbver;
 -- USE ALTER STATEMENTS to change the shape of existing tables
 -- if you are still using this file, create_database in database.py also needs updating
 -- for heroku to get the right shape of database.... and it must use dbver and alter,
--- because the database persists between builds. (still a TODO/work in progress)
+-- because the database persists between builds. (framework in place but no v2 work needed yet)
