@@ -14,7 +14,7 @@ async def startup():
     except ConnectionRefusedError:
         print("ERROR:    Could not connect to database.")
         raise 
-    # now make the tables if it's the first time (bootstrap)
+    # now make the tables (bootstrap) or version the database as needed
     await create_database()
 
 async def shutdown():
@@ -40,6 +40,7 @@ async def create_database():
             "DROP TABLE IF EXISTS jaminfo CASCADE;",
             "DROP TABLE IF EXISTS robot CASCADE;",
             "DROP TABLE IF EXISTS control CASCADE;",
+            "DROP TABLE IF EXISTS dbver CASCADE;",
             ]
     else:
         sql = []
@@ -75,7 +76,11 @@ async def create_database():
                 FOREIGN KEY(userId) REFERENCES users(id),
                 FOREIGN KEY(robotId) REFERENCES robot(id)
             );""",
-            "INSERT INTO robot(alias) SELECT 'Red Robot' EXCEPT SELECT alias FROM robot"
+            # make sure we only create red robot one time:
+            "INSERT INTO robot(alias) SELECT 'Red Robot' EXCEPT SELECT alias FROM robot",
+            "CREATE TABLE IF NOT EXISTS dbver(dbver int);",
+            # first insert ...
+            "INSERT INTO dbver SELECT 1 EXCEPT SELECT COUNT(dbver) FROM dbver;"
             ]
     sql.extend(sql2)
     stmt = ""
@@ -86,3 +91,16 @@ async def create_database():
         print("INFO:     Database bootstrapped")
     except asyncpg.exceptions.PostgresError:
         print("INFO:     Restart without DATABASE_REGEN; bootstrap failure on: ",stmt)
+    # now we can do any updates here...
+    # select dbver from dbver, use the value to drive further alterations
+    # then update dbver to the next value. (TODO)
+    # dbver = await database.fetch_one("SELECT dbver FROM dbver");
+    # if (dbver == 1): # base version needs to go to 2...
+    #   set up 1->2 changes and execute
+    #   first stmt is update dbver set dbver = 2 so later workers skip
+    #   dbver = 2
+    # if (dbver == 2):
+    #   set up 2->3 changes and execute
+    #   first stmt is update dbver set dbver = 3
+    #   dbver = 3
+    # you get the idea ...
