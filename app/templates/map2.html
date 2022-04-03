@@ -43,20 +43,28 @@
       }).addTo(map);
 
 <!-- based on https://www.youtube.com/watch?v=wwA0wTJCywo&list=PLm76kc4VPkn27kRYq-58COO5r5bQdrKyy&index=23 -->
-fetch("/mapped') }}", 
+fetch("/mapped", 
    {method: 'GET'})
 .then(response => response.json())
 .then(json => {
   console.log(json);
    var min = 99.0;
    var max = 0.0;
-   json.forEach(function(intensity) {
-     if (intensity<min) { min = intensity; }
-     if (intensity>max) { max = intensity; }
+   json.forEach(obj => {
+     if (obj.intensity<min) { min = obj.intensity; }
+     if (obj.intensity>max) { max = obj.intensity; }
    });
    var heatmapPts = [];
-   json.forEach(function(lng,lat,intensity) {
-     heatmapPts.push([lng,lat,intensity/max]);
+   var minLng = 9999;
+   var minLat = 9999;
+   var maxLng = -9999;
+   var maxLat = -9999;
+   json.forEach(obj=> {
+     heatmapPts.push([obj.lng,obj.lat,obj.intensity/max]);
+     if (obj.lng < minLng) minLng=obj.lng;
+     if (obj.lng > maxLng) maxLng=obj.lng;
+     if (obj.lat < minLat) minLat=obj.lat;
+     if (obj.lat > maxLat) maxLat=obj.lat;
    });
    var heat = L.heatLayer(heatmapPts, {
      radius: 20, minOpacity: 0.4,
@@ -68,7 +76,8 @@ fetch("/mapped') }}",
       '1.00': 'rgb(255,0,0)' 
      }
    }).addTo(map);
-   # map.fitBounds(json.getBounds());
+   // map.fitBounds(json.getBounds());
+   //map.fitBounds([ [minLng, minLat], [maxLng, maxLat] ]);
 })
 .catch(error => console.log(error.message));
 </script>
