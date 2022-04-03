@@ -64,8 +64,9 @@ async def create_database():
                 lat DOUBLE PRECISION,
                 lng DOUBLE PRECISION,
                 intensity DOUBLE PRECISION,
-                logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                robotId UUID REFERENCES robot(id));""",
+                robotId UUID REFERENCES robot(id),
+                logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );""",
 
             "CREATE INDEX IF NOT EXISTS jaminfo_robot_idx ON jaminfo(robotId);",
 
@@ -94,7 +95,8 @@ async def create_database():
     # now we can do any updates here...
     # select dbver from dbver, use the value to drive further alterations
     # then update dbver to the next value. (TODO)
-    # dbver = await database.fetch_one("SELECT dbver FROM dbver");
+    dbver = await database.fetch_one("SELECT dbver FROM dbver");
+    print("INFO:     Database version: ",dbver["dbver"])
     # if (dbver == 1): # base version needs to go to 2...
     #   set up 1->2 changes and execute
     #   first stmt is update dbver set dbver = 2 so later workers skip

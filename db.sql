@@ -29,8 +29,8 @@ CREATE TABLE jaminfo (
     lat DOUBLE PRECISION,
     lng DOUBLE PRECISION,
     intensity DOUBLE PRECISION,
-    logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    robotId UUID REFERENCES robot(id)
+    robotId UUID REFERENCES robot(id),
+        logged TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX jaminfo_robot_idx ON jaminfo(robotId);
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS dbver(dbver int);
 INSERT INTO dbver SELECT 1 EXCEPT SELECT COUNT(dbver) FROM dbver;
 
 -- UPDATE dbver SET dbver = # of updates...
--- USE ALTER STATEMENTS to change the shape of existing tables
+-- USE ALTER STATEMENTS to change the shape of existing tables if changing running/existing db
 -- if you are still using this file, create_database in database.py also needs updating
 -- for heroku to get the right shape of database.... and it must use dbver and alter,
 -- because the database persists between builds. (framework in place but no v2 work needed yet)
