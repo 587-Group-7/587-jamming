@@ -3,8 +3,10 @@
 <html>
 
 <head>
-        <title>587 Jam: Map of Signals</title>
+        <title>587 Jam: Signal Map</title>
         <link rel="shortcut icon" href="{{ url_for('static', path='/favicon.ico') }}">
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
                 integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
                 crossorigin="" />
@@ -12,9 +14,12 @@
                 integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
                 crossorigin=""></script>
         <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+
 </head>
 
 <body>
+        <script src="{{ url_for('static', path='/leaflet-heat.js') }}"></script>
+
         <header>
                 {{ nav|safe }}
         </header>
@@ -22,8 +27,11 @@
                 <div id="map"></div>
         </main>
         <script>
-                var map = L.map('map').setView([39.75101283381302, -105.22096993814259], 20);
-                L.tileLayer('https://api.mapbox.com/styles/v1/ethanperry247/cl1dzop0y001914mhtfn81g5o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZXRoYW5wZXJyeTI0NyIsImEiOiJjbDFkejVtdDYwMTVzM2NtbjNjb2xtaXU5In0.kg1-nwat3R2qiLaP4B3-Wg', {
+                // 20 locks in at finest view; maxZoom (19) lets it scale to fit the heatmap
+                var map = L.map('map').setView( [39.75035755631502, -105.22396087646484] , 19); // 20 is streetview 4 is full map
+/*
+                // blue map
+                var tiles = L.tileLayer('https://api.mapbox.com/styles/v1/ethanperry247/cl1dzop0y001914mhtfn81g5o/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZXRoYW5wZXJyeTI0NyIsImEiOiJjbDFkejVtdDYwMTVzM2NtbjNjb2xtaXU5In0.kg1-nwat3R2qiLaP4B3-Wg', {
                         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
                         maxZoom: 18,
                         id: 'mapbox/streets-v11',
@@ -31,8 +39,94 @@
                         zoomOffset: -1,
                         accessToken: 'pk.eyJ1IjoiZXRoYW5wZXJyeTI0NyIsImEiOiJjbDFkejVtdDYwMTVzM2NtbjNjb2xtaXU5In0.kg1-nwat3R2qiLaP4B3-Wg'
                 }).addTo(map);
-                var marker = L.marker([51.5, -0.09]).addTo(map);
+*/
+                // traditional map: slightly finer detail than blue map
+                var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        tileSize: 512,
+                        zoomOffset: -1,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                var maxIntensity = 0.0;
+                //var lastTime="";
+
+                <!-- based on https://www.youtube.com/watch?v=wwA0wTJCywo&list=PLm76kc4VPkn27kRYq-58COO5r5bQdrKyy&index=23 -->
+                fetch("/mapped", {method: 'GET'})
+                .then(response => response.json())
+                .then(json => {
+                        // console.log(json);
+                        json.forEach(obj => {
+                        if (obj.intensity>maxIntensity) { maxIntensity = obj.intensity; }
+                        //     if (obj.logged > lastTime) { console.log(obj.logged); lastTime = obj.logged; }
+                });
+                var heatmapPts = [];
+                var bounds = L.latLngBounds(); // Instantiate LatLngBounds object
+                json.forEach(obj=> {
+                        // is it lat before lng?
+                        heatmapPts.push([obj.lat,obj.lng,obj.intensity/maxIntensity]);
+                        bounds.extend([obj.lat,obj.lng]);
+                });
+                var heat = L.heatLayer(heatmapPts, {
+                        radius: 10, minOpacity: 0.4,
+                        gradient: {
+                        '0.00': 'rgb(255,0,255)',
+                        '0.25': 'rgb(0,0,255)',
+                        '0.50': 'rgb(0,255,0)',
+                        '0.75': 'rgb(255,255,0)',
+                        '1.00': 'rgb(255,0,0)' 
+                        }
+                });
+                heat.addTo(map);
+                // colorado: Longitude: 102°02′48″W to 109°02′48″W  Latitude: 37°N to 41°N (tested ok)
+                // bounds.extend([37.0,-102.0248]);
+                // bounds.extend([41.0,-109.0248]);
+                map.fitBounds(bounds);
+                })
+                .catch(error => console.log(error.message));
+
+                // SSE - not sure of impact on uvicorn.
+                //let eventSource = new EventSource("/newmapdata");
+
+                //eventSource.onmessage = function(event) {
+                //  console.log("New message", event.data);
+                //};
+
+                function mapPoll() {
+                //console.log("/newmapdata?since="+lastTime);
+                //fetch("/newmapdata?since="+encodeURIComponent(lastTime), {method: 'GET'})
+                fetch("/newmapdata", {method: 'GET'})
+                .then(response => response.json())
+                .then(json => {
+                        jsonlength = Object.keys(json).length;
+                        if (jsonlength == 0) return; // no update
+                        var bounds = map.getBounds(); 
+                        //console.log(bounds);
+                        var heat = null;
+                        map.eachLayer(function(layer) {
+                        if( layer instanceof L.HeatLayer )
+                                heat = layer;
+                        });
+                        console.log(heat);
+                        json.forEach(obj=> {
+                                heat.addLatLng([obj.lat,obj.lng,obj.intensity/maxIntensity]);
+                                bounds.extend([ obj.lat, obj.lng ]);
+                                //if (obj.logged > lastTime) { console.log(obj.logged); lastTime = obj.logged; }
+                        });
+                        // colorado: Longitude: 102°02′48″W to 109°02′48″W  Latitude: 37°N to 41°N (tested ok)
+                        // bounds.extend([37.0,-102.0248]);
+                        // bounds.extend([41.0,-109.0248]);
+                        map.fitBounds(bounds);
+                        })
+                .catch(error => console.log(error.message));
+                setTimeout(mapPoll,5000); // inside the callback call...
+                }
+
+                // initial call, or just call refresh directly
+                setTimeout(mapPoll, 5000);
+
         </script>
+
 </body>
 
 </html>
