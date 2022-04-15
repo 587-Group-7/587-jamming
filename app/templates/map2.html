@@ -31,43 +31,39 @@
 <div id="map" style="width: 100%; height: 100%;"></div>
 <script>
 
-	var map = L.map('map').setView( [ 
+var map = L.map('map').setView( [ 
                 39.75035755631502, -105.22396087646484
                 ] , 4);
 
-    var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	    maxZoom: 19,
       tileSize: 512,
       zoomOffset: -1,
 	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
+var maxIntensity = 0.0;
+//var lastTime="";
+
 <!-- based on https://www.youtube.com/watch?v=wwA0wTJCywo&list=PLm76kc4VPkn27kRYq-58COO5r5bQdrKyy&index=23 -->
 fetch("/mapped", 
    {method: 'GET'})
 .then(response => response.json())
 .then(json => {
-  console.log(json);
-   var min = 99.0;
-   var max = 0.0;
+  // console.log(json);
    json.forEach(obj => {
-     if (obj.intensity<min) { min = obj.intensity; }
-     if (obj.intensity>max) { max = obj.intensity; }
+     if (obj.intensity>maxIntensity) { maxIntensity = obj.intensity; }
+//     if (obj.logged > lastTime) { console.log(obj.logged); lastTime = obj.logged; }
    });
    var heatmapPts = [];
-   var minLng = 9999;
-   var minLat = 9999;
-   var maxLng = -9999;
-   var maxLat = -9999;
+   var bounds = L.latLngBounds(); // Instantiate LatLngBounds object
    json.forEach(obj=> {
-     heatmapPts.push([obj.lng,obj.lat,obj.intensity/max]);
-     if (obj.lng < minLng) minLng=obj.lng;
-     if (obj.lng > maxLng) maxLng=obj.lng;
-     if (obj.lat < minLat) minLat=obj.lat;
-     if (obj.lat > maxLat) maxLat=obj.lat;
+     // is it lat before lng?
+     heatmapPts.push([obj.lat,obj.lng,obj.intensity/maxIntensity]);
+     bounds.extend([obj.lat,obj.lng]);
    });
    var heat = L.heatLayer(heatmapPts, {
-     radius: 20, minOpacity: 0.4,
+     radius: 10, minOpacity: 0.4,
      gradient: {
       '0.00': 'rgb(255,0,255)',
       '0.25': 'rgb(0,0,255)',
@@ -75,11 +71,55 @@ fetch("/mapped",
       '0.75': 'rgb(255,255,0)',
       '1.00': 'rgb(255,0,0)' 
      }
-   }).addTo(map);
-   // map.fitBounds(json.getBounds());
-   //map.fitBounds([ [minLng, minLat], [maxLng, maxLat] ]);
+   });
+   heat.addTo(map);
+   // colorado: Longitude: 102°02′48″W to 109°02′48″W  Latitude: 37°N to 41°N (tested ok)
+   // bounds.extend([37.0,-102.0248]);
+   // bounds.extend([41.0,-109.0248]);
+   map.fitBounds(bounds);
 })
 .catch(error => console.log(error.message));
+
+// SSE - not sure of impact on uvicorn.
+//let eventSource = new EventSource("/newmapdata");
+
+//eventSource.onmessage = function(event) {
+//  console.log("New message", event.data);
+//};
+
+function refresh() {
+    //console.log("/newmapdata?since="+lastTime);
+    //fetch("/newmapdata?since="+encodeURIComponent(lastTime), {method: 'GET'})
+    fetch("/newmapdata", {method: 'GET'})
+    .then(response => response.json())
+    .then(json => {
+      jsonlength = Object.keys(json).length;
+      if (jsonlength == 0) return; // no update
+      var bounds = map.getBounds(); 
+      console.log(bounds);
+      var heat = null;
+      map.eachLayer(function(layer) {
+          if( layer instanceof L.HeatLayer )
+              heat = layer;
+      });
+      console.log(heat);
+      json.forEach(obj=> {
+        heat.addLatLng([obj.lat,obj.lng,obj.intensity/maxIntensity]);
+        bounds.extend([ obj.lat, obj.lng ]);
+        //if (obj.logged > lastTime) { console.log(obj.logged); lastTime = obj.logged; }
+      });
+      // colorado: Longitude: 102°02′48″W to 109°02′48″W  Latitude: 37°N to 41°N (tested ok)
+      // bounds.extend([37.0,-102.0248]);
+      // bounds.extend([41.0,-109.0248]);
+      map.fitBounds(bounds);
+      })
+    .catch(error => console.log(error.message));
+    setTimeout(refresh,5000); // inside the callback call...
+}
+
+// initial call, or just call refresh directly
+setTimeout(refresh, 5000);
+
 </script>
 
 </body>

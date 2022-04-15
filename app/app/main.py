@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from typing import Optional
 import os
+import urllib.parse
 
 app = FastAPI()
 
@@ -16,6 +17,7 @@ app.mount("/static", StaticFiles(directory=STATICDIR), name="static")
 
 TEMPLATEDIR = "templates" if ROOTDIR is None else ROOTDIR+"templates"
 templates = Jinja2Templates(directory=TEMPLATEDIR)
+marker= [""]
 
 app.include_router(robot.router)
 app.include_router(user.router)
@@ -75,16 +77,36 @@ async def create_account(request: Request):
 @app.get("/mapped")
 async def mapped(robot: Optional[str] = "", oldest: Optional[str]="", newest: Optional[str]="", db=Depends(database.provide_connection)):
     # TODO: not dealing with date ranges yet (oldest to newest)
+    markerT = await db.fetch_one("SELECT CAST(max(logged) AS TEXT) AS maxlog FROM jaminfo")
     if (robot == ""):
         result = await db.fetch_all(
-            "SELECT lat, lng, intensity FROM jaminfo")
+            "SELECT lat, lng, intensity, logged FROM jaminfo")
     else:
         d = {'robot': robot}
         result = await db.fetch_all(
-            """SELECT lat, lng, intensity FROM jaminfo JOIN robot on jaminfo.robotId = robot.id 
+            """SELECT lat, lng, intensity, logged FROM jaminfo JOIN robot on jaminfo.robotId = robot.id 
             WHERE robot.alias=:robot""",d)
+    marker[0] = markerT["maxlog"]
     return result
 
+#map updates
+# could use SSE but unsure of impact on uvicorn...so using client polling
+# since: Optional[str] = "", 
+@app.get("/newmapdata")
+async def newmapdata(robot: Optional[str] = "", db=Depends(database.provide_connection)):
+    # TODO: handle specific robot...
+    markerT = await db.fetch_one("SELECT CAST(max(logged) AS TEXT) AS maxlogged FROM jaminfo")
+    if (marker[0] != ""):
+        # dyn param not working, value is server-side only
+        result = await db.fetch_all(
+            "SELECT lat, lng, intensity, logged FROM jaminfo WHERE logged > CAST('"+marker[0]+"' AS TIMESTAMP)")
+    else:
+        # no data yet - hmmm
+        result = await db.fetch_all(
+            "SELECT lat, lng, intensity, logged FROM jaminfo")
+    # fetched before, updated after. so we don't lose any data
+    marker[0] = markerT["maxlogged"]
+    return result
 
 @app.get("/view_robots", response_class=HTMLResponse)
 async def create_account(request: Request, db=Depends(database.provide_connection)):
