@@ -49,7 +49,7 @@
                 }).addTo(map);
 
                 var maxIntensity = 0.0;
-                //var lastTime="";
+                var lastTime="";
 
                 <!-- based on https://www.youtube.com/watch?v=wwA0wTJCywo&list=PLm76kc4VPkn27kRYq-58COO5r5bQdrKyy&index=23 -->
                 fetch("/mapped", {method: 'GET'})
@@ -58,7 +58,7 @@
                         // console.log(json);
                         json.forEach(obj => {
                         if (obj.intensity>maxIntensity) { maxIntensity = obj.intensity; }
-                        //     if (obj.logged > lastTime) { console.log(obj.logged); lastTime = obj.logged; }
+                        if (obj.logged > lastTime) { lastTime = obj.logged; }
                 });
                 var heatmapPts = [];
                 var bounds = L.latLngBounds(); // Instantiate LatLngBounds object
@@ -87,46 +87,36 @@
 
                 // SSE - not sure of impact on uvicorn.
                 //let eventSource = new EventSource("/newmapdata");
-
                 //eventSource.onmessage = function(event) {
                 //  console.log("New message", event.data);
                 //};
 
                 function mapPoll() {
-                //console.log("/newmapdata?since="+lastTime);
-                //fetch("/newmapdata?since="+encodeURIComponent(lastTime), {method: 'GET'})
-                fetch("/newmapdata", {method: 'GET'})
-                .then(response => response.json())
-                .then(json => {
-                        jsonlength = Object.keys(json).length;
-                        if (jsonlength == 0) return; // no update
-                        var bounds = map.getBounds(); 
-                        //console.log(bounds);
-                        var heat = null;
-                        map.eachLayer(function(layer) {
-                        if( layer instanceof L.HeatLayer )
-                                heat = layer;
-                        });
-                        console.log(heat);
-                        json.forEach(obj=> {
-                                heat.addLatLng([obj.lat,obj.lng,obj.intensity/maxIntensity]);
-                                bounds.extend([ obj.lat, obj.lng ]);
-                                //if (obj.logged > lastTime) { console.log(obj.logged); lastTime = obj.logged; }
-                        });
-                        // colorado: Longitude: 102°02′48″W to 109°02′48″W  Latitude: 37°N to 41°N (tested ok)
-                        // bounds.extend([37.0,-102.0248]);
-                        // bounds.extend([41.0,-109.0248]);
-                        map.fitBounds(bounds);
+                        //console.log("/newmapdata?since="+encodeURIComponent(lastTime));
+                        fetch("/newmapdata?since="+encodeURIComponent(lastTime), {method: 'GET'})
+                        .then(response => response.json())
+                        .then(json => {
+                                jsonlength = Object.keys(json).length;
+                                if (jsonlength == 0) return; // no update
+                                var bounds = map.getBounds(); 
+                                var heat = null;
+                                map.eachLayer(function(layer) {
+                                if( layer instanceof L.HeatLayer )
+                                        heat = layer;
+                                });
+                                json.forEach(obj=> {
+                                        heat.addLatLng([obj.lat,obj.lng,obj.intensity/maxIntensity]);
+                                        bounds.extend([ obj.lat, obj.lng ]);
+                                        if (obj.logged > lastTime) { lastTime = obj.logged; }
+                                });
+                                map.fitBounds(bounds);
                         })
-                .catch(error => console.log(error.message));
-                setTimeout(mapPoll,5000); // inside the callback call...
+                        .catch(error => console.log(error.message));
+                        setTimeout(mapPoll,5000); // inside the callback call...
                 }
 
-                // initial call, or just call refresh directly
+                // initiate polling.
                 setTimeout(mapPoll, 5000);
-
         </script>
-
 </body>
-
 </html>
