@@ -17,7 +17,6 @@ app.mount("/static", StaticFiles(directory=STATICDIR), name="static")
 
 TEMPLATEDIR = "templates" if ROOTDIR is None else ROOTDIR+"templates"
 templates = Jinja2Templates(directory=TEMPLATEDIR)
-marker= [""]
 
 app.include_router(robot.router)
 app.include_router(user.router)
@@ -69,15 +68,10 @@ async def create_account(request: Request):
 async def create_account(request: Request):
     return templates.TemplateResponse("map.html", {"request": request, "nav": template.NAVIGATION})
 
-@app.get("/map2", response_class=HTMLResponse)
-async def create_account(request: Request):
-    return templates.TemplateResponse("map2.html", {"request": request, "nav": template.NAVIGATION})
-
 #map hotpoints
 @app.get("/mapped")
 async def mapped(robot: Optional[str] = "", oldest: Optional[str]="", newest: Optional[str]="", db=Depends(database.provide_connection)):
     # TODO: not dealing with date ranges yet (oldest to newest)
-    markerT = await db.fetch_one("SELECT CAST(max(logged) AS TEXT) AS maxlog FROM jaminfo")
     if (robot == ""):
         result = await db.fetch_all(
             "SELECT lat, lng, intensity, logged FROM jaminfo")
@@ -86,26 +80,22 @@ async def mapped(robot: Optional[str] = "", oldest: Optional[str]="", newest: Op
         result = await db.fetch_all(
             """SELECT lat, lng, intensity, logged FROM jaminfo JOIN robot on jaminfo.robotId = robot.id 
             WHERE robot.alias=:robot""",d)
-    marker[0] = markerT["maxlog"]
     return result
 
-#map updates
+# map updates
 # could use SSE but unsure of impact on uvicorn...so using client polling
-# since: Optional[str] = "", 
 @app.get("/newmapdata")
-async def newmapdata(robot: Optional[str] = "", db=Depends(database.provide_connection)):
+async def newmapdata(robot: Optional[str] = "", since: Optional[str] = "", db=Depends(database.provide_connection)):
     # TODO: handle specific robot...
-    markerT = await db.fetch_one("SELECT CAST(max(logged) AS TEXT) AS maxlogged FROM jaminfo")
-    if (marker[0] != ""):
-        # dyn param not working, value is server-side only
+    if (since != ""):
+        since = urllib.parse.unquote(since)
+        dynparm = { "since": since }
         result = await db.fetch_all(
-            "SELECT lat, lng, intensity, logged FROM jaminfo WHERE logged > CAST('"+marker[0]+"' AS TIMESTAMP)")
+            "SELECT lat, lng, intensity, logged FROM jaminfo WHERE logged > TO_TIMESTAMP(:since,'YYYY-MM-DDTHH24:MI:SS.US')",dynparm)
     else:
-        # no data yet - hmmm
+        # no data yet - get started!
         result = await db.fetch_all(
             "SELECT lat, lng, intensity, logged FROM jaminfo")
-    # fetched before, updated after. so we don't lose any data
-    marker[0] = markerT["maxlogged"]
     return result
 
 @app.get("/view_robots", response_class=HTMLResponse)
