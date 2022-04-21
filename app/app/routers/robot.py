@@ -25,7 +25,7 @@ class RobotAlias(BaseModel):
 @router.post("/", status_code=200)
 async def create_robot(robot: RobotAlias, db=Depends(database.provide_connection)):
     try:
-        await db.execute("INSERT INTO robot (alias) VALUES (:alias) RETURNING id", values={"alias": "" if robot.alias == None else robot.alias})
+        return await db.execute("INSERT INTO robot (alias) VALUES (:alias) RETURNING id", values={"alias": "" if robot.alias == None else robot.alias})
     except asyncpg.exceptions.DataError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
