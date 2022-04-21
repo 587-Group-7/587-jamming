@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Depends
 from .shared import template
 from .database import database
+from .utils.manager import manager
 from .routers import robot, user, command, control, measurement
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -101,7 +102,11 @@ async def newmapdata(robot: Optional[str] = "", since: Optional[str] = "", db=De
 @app.get("/view_robots", response_class=HTMLResponse)
 async def create_account(request: Request, db=Depends(database.provide_connection)):
     robots = await db.fetch_all("SELECT * FROM robot")
-    return templates.TemplateResponse("robot.html", {"request": request, "nav": template.NAVIGATION, "robots": [(dict(robot)['id'], dict(robot)['alias'])for robot in robots]})
+    active_robots = manager.get_all_active_connections()
+    available_robots = manager.get_available_active_connections()
+    print(available_robots)
+    print([(str(dict(robot)['id']), dict(robot)['alias'])for robot in robots])
+    return templates.TemplateResponse("robot.html", {"request": request, "nav": template.NAVIGATION, "robots": [(str(dict(robot)['id']), dict(robot)['alias'])for robot in robots], "active": active_robots, "available": available_robots})
     
 @app.get("/robot-control/id/{id}/alias/{robot_alias}", response_class=HTMLResponse)
 async def create_account(request: Request, robot_alias, id):

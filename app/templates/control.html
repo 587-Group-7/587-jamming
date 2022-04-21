@@ -40,8 +40,7 @@
             })
             if (res.status === 200) {
                 json = await res.json();
-                document.cookie = `controlId=${json.id}; ${document.cookie}`;
-                document.getElementById("control");
+                alert("Successfully connected to the robot!");
             } else {
                 alert("Could not take control of robot. Please relog and try again.");
             }

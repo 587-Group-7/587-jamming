@@ -12,25 +12,20 @@ from fastapi import APIRouter, Depends, Request, HTTPException, status
 from ..shared.definitions import User
 
 # Local definitions
-
-
 class Measurement(BaseModel):
     lat: float
     lng: float
     intensity: float
     robot_id: asyncpg.pgproto.pgproto.UUID
 
-
 class MeasurementId(BaseModel):
     id: asyncpg.pgproto.pgproto.UUID
-
 
 router = APIRouter(
     prefix="/measurement",
     tags=["measurement"],
     responses={404: {"description": "Not found"}}
 )
-
 
 @router.post("/", status_code=201)
 async def create_measurement(measurement: Measurement, db=Depends(database.provide_connection)):

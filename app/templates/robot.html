@@ -14,15 +14,29 @@
     </header>
     <main>
         <div class="section center">
-            <h1>Available Robots</h1>
+            <h1>Robots</h1>
             <p>Select a robot from the list to take control.</p>
             <div class="robots">
                 {% for robot in robots %}
-                <a href="/robot-control/id/{{robot[0]}}/alias/{{robot[1]}}">
-                    <div class="robot">
-                        {{ robot[1] }}
-                    </div>
-                </a>
+                    {% if robot[0] in available %}
+                        <a href="/robot-control/id/{{robot[0]}}/alias/{{robot[1]}}">
+                            <div class="robot available">
+                                {{ robot[1] }}
+                            </div>
+                        </a>
+                    {% else %}
+                        {% if robot[0] in active %}
+                            <a href="/robot-control/id/{{robot[0]}}/alias/{{robot[1]}}">
+                                <div class="robot active">
+                                    {{ robot[1] }}
+                                </div>
+                            </a>
+                        {% else %}
+                            <div class="robot inactive">
+                                {{ robot[1] }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>

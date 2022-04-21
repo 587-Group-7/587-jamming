@@ -6,6 +6,11 @@
   --color-1: #ffffff;
   --color-2: #a9fbd7;
   --color-3: #cec0c400;
+  --color-4: #d4d4d4;
+  --color-5: rgb(128, 69, 224);
+  --color-6: rgba(255, 73, 92, 1);
+  --color-7: #0d1a2b;
+  --color-8: #141d29;
   --shadow-0: 0px 8px 17px -3px rgba(0, 0, 0, 0.1);
   --border-radius: 3px;
 }
@@ -22,7 +27,7 @@ body {
     139deg,
     rgba(13, 26, 43, 1) 0%,
     rgba(30, 59, 94, 1) 100%,
-    rgb(128, 69, 224) 100%
+    var(--color-5) 100%
   );
 }
 
@@ -68,11 +73,11 @@ input[type="password"] {
 }
 
 button {
-  background: rgb(128, 69, 224);
+  background: var(--color-5);
   background: linear-gradient(
     315deg,
-    rgba(128, 69, 224, 1) 0%,
-    rgba(255, 73, 92, 1) 100%
+    var(--color-5) 0%,
+    var(--color-6) 100%
   );
   color: var(--color-1);
   cursor: pointer;
@@ -85,7 +90,7 @@ button:hover {
 
 button:focus {
   transition: 0.3s;
-  background: rgb(128, 69, 224);
+  background: var(--color-5);
 }
 
 .form {
@@ -195,7 +200,7 @@ main {
 .robots .robot, .labels .label {
   height: 40px;
   width: 210px;
-  background-color: #0d1a2b;
+  background-color: var(--color-7);
   color: var(--color-1);
   box-sizing: border-box;
   border-radius: 25px;
@@ -207,8 +212,13 @@ main {
   transition: 0.3s;
 }
 
-.robots .robot:hover {
-  background-color: #8045E0;
+.robots .robot.inactive {
+  color: var(--color-4);
+  background-color: var(--color-8);
+}
+
+.robots .robot.active:hover, .robots .robot.available:hover  {
+  background-color: var(--color-5);
   transition: 0.3s;
   cursor: pointer;
 }

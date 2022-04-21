@@ -14,8 +14,9 @@
     </header>
     <main>
         <div class="section center">
-            <h1>Current Robot Controls</h1>
-            <p>These are the robots currently under control by your account. If you are done using them, please release the control so that another user may control a robot.</p>
+            <h1>Current Robot Control</h1>
+            <p>These are the robots currently under control by your account. If you are done using them, please release
+                the control so that another user may control a robot.</p>
         </div>
     </main>
     <script>
@@ -23,12 +24,32 @@
                     {% for robot in robots %}
                         <div class="label">{{robot[1]}}</div>
                     {% endfor %}`
-        
-        const fetchRobots = async () => {
 
+        const getControl = async () => {
+            if (auth === false) {
+                alert("You are not logged in. Please log in to view the robots you control.");
+                return
+            }
+
+            const token = getCookie('token');
+
+            const res = await fetch('/control', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            console.log(res)
+            if (res.status === 200) {
+                json = await res.json();
+                console.log(json)
+            } else {
+                alert("Error viewing controlled robots. Please revisit the page at a later time.");
+            }
         };
 
-        fetchRobots();
+        setTimeout(getControl, 500)
     </script>
 </body>
 
