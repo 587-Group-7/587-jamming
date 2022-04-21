@@ -1,2 +1,3 @@
 pyrtlsdr
 requests
+websocket-client

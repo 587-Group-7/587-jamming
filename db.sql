@@ -39,7 +39,7 @@ CREATE TABLE control (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     userId UUID,
     robotId UUID,
-    FOREIGN KEY(userId) REFERENCES user(id),
+    FOREIGN KEY(userId) REFERENCES users(id),
     FOREIGN KEY(robotId) REFERENCES robot(id)
 );
 
