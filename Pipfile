@@ -11,6 +11,8 @@ python-dotenv = "*"
 jinja2 = "*"
 uvicorn = "*"
 python-jose = "*"
+pyrtlsdr = "*"
+requests = "*"
 
 [dev-packages]
 
