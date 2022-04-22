@@ -13,6 +13,8 @@ uvicorn = "*"
 python-jose = "*"
 pyrtlsdr = "*"
 requests = "*"
+asyncio = "*"
+websockets = "*"
 
 [dev-packages]
 
